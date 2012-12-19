@@ -44,3 +44,12 @@ CCSprite* createImageWithFrameName(const char* name, float x, float y, CCNode* p
     parent->addChild(sprite);
     return sprite;
 }
+
+CCLabelAtlas* createLabelAtlas(const char* label, const char* fontName, int width, int height, char startChar, float x, float y, const CCPoint& anchor, CCNode* parent)
+{
+    CCLabelAtlas* labelAtlas = CCLabelAtlas::create(label, fontName, width, height, startChar);
+    labelAtlas->setPosition(getPositionByPercent(ccp(x,y)));
+    labelAtlas->setAnchorPoint(anchor);
+    parent->addChild(labelAtlas);
+    return labelAtlas;
+}
