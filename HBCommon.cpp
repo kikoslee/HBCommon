@@ -29,18 +29,18 @@ CCLayer* HBLayerLoader(const char* name, CCNodeLoader* loader)
     return node;
 }
 
-CCPoint getPositionByPercent(const CCPoint& p)
+CCPoint getPositionByPercent(float x, float y)
 {
     CCSize winSize = CCDirector::sharedDirector()->getWinSize();
     
-    return ccp(winSize.width * p.x, winSize.height * p.y);
+    return ccp(winSize.width * x / 100.f, winSize.height * y / 100.f);
 }
 
 
 CCSprite* createImageWithFrameName(const char* name, float x, float y, CCNode* parent)
 {
     CCSprite* sprite = CCSprite::createWithSpriteFrameName(name);
-    sprite->setPosition(getPositionByPercent(ccp(x,y)));
+    sprite->setPosition(getPositionByPercent(x, y));
     parent->addChild(sprite);
     return sprite;
 }
@@ -48,7 +48,7 @@ CCSprite* createImageWithFrameName(const char* name, float x, float y, CCNode* p
 CCLabelAtlas* createLabelAtlas(const char* label, const char* fontName, int width, int height, char startChar, float x, float y, const CCPoint& anchor, CCNode* parent)
 {
     CCLabelAtlas* labelAtlas = CCLabelAtlas::create(label, fontName, width, height, startChar);
-    labelAtlas->setPosition(getPositionByPercent(ccp(x,y)));
+    labelAtlas->setPosition(getPositionByPercent(x, y));
     labelAtlas->setAnchorPoint(anchor);
     parent->addChild(labelAtlas);
     return labelAtlas;
