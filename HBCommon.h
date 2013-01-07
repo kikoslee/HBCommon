@@ -17,7 +17,6 @@ using namespace CocosDenshion;
 #include "HBSingleton.h"
 
 #define fcs(format,...) CCString::createWithFormat(format,## __VA_ARGS__)->getCString()
-#define gls(id) getLocalizationString(id)
 
 const CCPoint gPointCenter = ccp(240, 160);
 const CCPoint gAnchorCenter = ccp(0.5, 0.5);
@@ -34,10 +33,27 @@ CCPoint getPositionByPercent(float x, float y);
 CCSprite* createImageWithFrameName(const char* name, float x, float y, CCNode* parent);
 CCLabelAtlas* createLabelAtlas(const char* label, const char* fontName, int width, int height, char startChar, float x, float y, const CCPoint& anchor, CCNode* parent);
 
+extern char HBDeviceLanguage[50];
+
+class HBLocalize : public HBSingleton<HBLocalize>
+{
+public:
+    const char* GetDeviceLanguage();
+    bool readFromFile();
+    bool readFromFile(const char* name);
+    const char* getString(const char* name);
+    
+private:
+    map<string, string> mDict;
+};
+
+#define HBLocaShared HBLocalize::shared()
+#define gls(id) HBLocaShared->getString(id)
 
 //////////////////////////////////
 // dependence by platform
 //////////////////////////////////
+
 
 #include "HBKeys.h"
 
@@ -59,9 +75,16 @@ public:
     static void event(const char* name, const char* value = NULL);
 };
 
-
-const char* getLocalizationString(const char* str);
+extern "C"
+{
 void gotoReview();
+void gotoMoreGame();
 void gotoUrl(const char* url);
+}
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+const char* HBGetDeviceLanguage_iOS();
+#endif
+
+void HBExitApplication();
 
 #endif

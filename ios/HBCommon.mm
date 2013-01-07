@@ -1,17 +1,24 @@
 #include "HBCommon.h"
 #import "HBGameCenter.h"
 
-const char* getLocalizationString(const char* str)
-{
-	NSString* strName = [NSString stringWithFormat:@"%s", str];
-	strName = NSLocalizedString(strName, nil);
-	return [strName cStringUsingEncoding:NSUTF8StringEncoding];
-}
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+
+//const char* getLocalizationString(const char* str)
+//{
+//	NSString* strName = [NSString stringWithFormat:@"%s", str];
+//	strName = NSLocalizedString(strName, nil);
+//	return [strName cStringUsingEncoding:NSUTF8StringEncoding];
+//}
 
 void gotoReview()
 {
     NSString *str = [NSString stringWithFormat:@"itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=%s", kAppIDiOS];
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:str]];
+}
+
+void gotoMoreGame()
+{
+    gotoUrl("itms-apps://itunes.com/apps/limin");
 }
 
 void gotoUrl(const char* url)
@@ -104,3 +111,14 @@ int HBUmeng::getParamValue(const char* name)
     else
         return -1;
 }
+
+const char* HBGetDeviceLanguage_iOS()
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
+    NSString *currentLanguage = [languages objectAtIndex:0];
+    
+    return [currentLanguage UTF8String];
+}
+
+#endif
