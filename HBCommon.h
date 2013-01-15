@@ -18,20 +18,23 @@ using namespace CocosDenshion;
 
 #define fcs(format,...) CCString::createWithFormat(format,## __VA_ARGS__)->getCString()
 
-const CCPoint gPointCenter = ccp(240, 160);
+const char* HBCommaPrint(int n);
+
 const CCPoint gAnchorCenter = ccp(0.5, 0.5);
 const CCPoint gAnchorLeft = ccp(0, 0.5);
 const CCPoint gAnchorRight = ccp(1, 0.5);
 const CCPoint gAnchorTop = ccp(0.5, 0);
 const CCPoint gAnchorBottom = ccp(0.5, 1);
 
+#define HBRegistCCBLoader(pClassName, pCCNodeLoader) CCNodeLoaderLibrary::sharedCCNodeLoaderLibrary()->registerCCNodeLoader(pClassName, pCCNodeLoader)
 CCScene* HBSceneLoader(const char* name, CCNodeLoader* loader);
 CCLayer* HBLayerLoader(const char* name, CCNodeLoader* loader);
 
-CCPoint getPositionByPercent(float x, float y);
+CCPoint HBgetPositionByPercent(float x, float y);
 
-CCSprite* createImageWithFrameName(const char* name, float x, float y, CCNode* parent);
-CCLabelAtlas* createLabelAtlas(const char* label, const char* fontName, int width, int height, char startChar, float x, float y, const CCPoint& anchor, CCNode* parent);
+CCSprite* HBcreateImageWithFrameName(const char* name, float x, float y, CCNode* parent, bool usePercent = true);
+CCLabelTTF* HBcreateLabel(const char* label, const char* fontName, float fontSize, const CCPoint& anchor, const ccColor3B& color, float x, float y, CCNode* parent, bool usePercent = true);
+CCLabelAtlas* HBcreateLabelAtlas(const char* label, const char* fontName, int width, int height, char startChar, float x, float y, const CCPoint& anchor, CCNode* parent, bool usePercent = true);
 
 extern char HBDeviceLanguage[50];
 

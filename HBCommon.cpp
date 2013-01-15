@@ -2,9 +2,34 @@
 
 char HBDeviceLanguage[50] = "";
 
+const char* HBCommaPrint(int n)
+{
+	static int comma = ',';
+	static char retbuf[30];
+	
+	char *p = &retbuf[sizeof(retbuf)-1];
+	int i = 0;
+	
+	*p = '\0';
+	int m = abs(n);
+	do
+	{
+		if( i % 3 == 0 && i != 0)
+			*--p = comma;
+		*--p = '0' + m % 10;
+		m /= 10;
+		i++;
+	} while(m != 0);
+	
+	if(n < 0)
+		*--p = '-';
+	
+	return p;
+}
+
 CCScene* HBSceneLoader(const char* name, CCNodeLoader* loader)
 {
-    CCNodeLoaderLibrary * ccNodeLoaderLibrary = CCNodeLoaderLibrary::newDefaultCCNodeLoaderLibrary();
+    CCNodeLoaderLibrary * ccNodeLoaderLibrary = CCNodeLoaderLibrary::sharedCCNodeLoaderLibrary();
     ccNodeLoaderLibrary->registerCCNodeLoader(name, loader);
     
     CCScene* scene = CCScene::create();
@@ -21,7 +46,7 @@ CCScene* HBSceneLoader(const char* name, CCNodeLoader* loader)
 
 CCLayer* HBLayerLoader(const char* name, CCNodeLoader* loader)
 {
-    CCNodeLoaderLibrary * ccNodeLoaderLibrary = CCNodeLoaderLibrary::newDefaultCCNodeLoaderLibrary();
+    CCNodeLoaderLibrary * ccNodeLoaderLibrary = CCNodeLoaderLibrary::sharedCCNodeLoaderLibrary();
     ccNodeLoaderLibrary->registerCCNodeLoader(name, loader);
     
     cocos2d::extension::CCBReader* ccbReader = new cocos2d::extension::CCBReader(ccNodeLoaderLibrary);
@@ -31,26 +56,44 @@ CCLayer* HBLayerLoader(const char* name, CCNodeLoader* loader)
     return node;
 }
 
-CCPoint getPositionByPercent(float x, float y)
+CCPoint HBgetPositionByPercent(float x, float y)
 {
     CCSize winSize = CCDirector::sharedDirector()->getWinSize();
     
     return ccp(winSize.width * x / 100.f, winSize.height * y / 100.f);
 }
 
-
-CCSprite* createImageWithFrameName(const char* name, float x, float y, CCNode* parent)
+CCSprite* HBcreateImageWithFrameName(const char* name, float x, float y, CCNode* parent, bool usePercent)
 {
     CCSprite* sprite = CCSprite::createWithSpriteFrameName(name);
-    sprite->setPosition(getPositionByPercent(x, y));
+    if (usePercent)
+        sprite->setPosition(HBgetPositionByPercent(x, y));
+    else
+        sprite->setPosition(ccp(x, y));
     parent->addChild(sprite);
     return sprite;
 }
 
-CCLabelAtlas* createLabelAtlas(const char* label, const char* fontName, int width, int height, char startChar, float x, float y, const CCPoint& anchor, CCNode* parent)
+CCLabelTTF* HBcreateLabel(const char* label, const char* fontName, float fontSize, const CCPoint& anchor, const ccColor3B& color, float x, float y, CCNode* parent, bool usePercent)
+{
+    CCLabelTTF* labelTTF = CCLabelTTF::create(label, fontName, fontSize);
+    if (usePercent)
+        labelTTF->setPosition(HBgetPositionByPercent(x, y));
+    else
+        labelTTF->setPosition(ccp(x, y));
+    labelTTF->setAnchorPoint(anchor);
+    labelTTF->setColor(color);
+    parent->addChild(labelTTF);
+    return labelTTF;
+}
+
+CCLabelAtlas* HBcreateLabelAtlas(const char* label, const char* fontName, int width, int height, char startChar, float x, float y, const CCPoint& anchor, CCNode* parent, bool usePercent)
 {
     CCLabelAtlas* labelAtlas = CCLabelAtlas::create(label, fontName, width, height, startChar);
-    labelAtlas->setPosition(getPositionByPercent(x, y));
+    if (usePercent)
+        labelAtlas->setPosition(HBgetPositionByPercent(x, y));
+    else
+        labelAtlas->setPosition(ccp(x, y));
     labelAtlas->setAnchorPoint(anchor);
     parent->addChild(labelAtlas);
     return labelAtlas;
@@ -95,7 +138,6 @@ bool HBLocalize::readFromFile(const char* name)
 	curNode = rootNode;
 	while (NULL != curNode)
 	{
-        CCLOG("xxxxxxx [%s]", curNode->name);
 		if (!xmlStrcmp(curNode->name, BAD_CAST "strings"))
 		{
 			xmlNodePtr elem = curNode->children;
