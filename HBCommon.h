@@ -78,6 +78,31 @@ public:
     static void event(const char* name, const char* value = NULL);
 };
 
+class HBPurchase : public HBSingleton<HBPurchase>
+{
+public:
+    HBPurchase();
+    
+    void init(const vector<string>& itemList);
+
+    string getItemCost(int index);
+    string getItemCost(const char* itemName);
+    void purchaseItem(int index, CCObject* target, SEL_CallFuncO successCall, SEL_CallFuncO failedCall);
+    void purchaseItem(const char* itemName, CCObject* target, SEL_CallFuncO selector, SEL_CallFuncO failedCall);
+    void purchaseSuccess(const char* itemName);
+    void purchaseFailed(int errorCode, const char* failedReason);
+    
+private:
+    bool mInitialized;
+    
+    CCObject* mTarget;
+    SEL_CallFuncO mSuccessCall;
+    SEL_CallFuncO mFailedCall;
+    bool isPurchasing;
+    
+    vector<string>  mItemList;
+};
+
 extern "C"
 {
 void gotoReview();

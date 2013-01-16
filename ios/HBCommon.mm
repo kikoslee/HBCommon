@@ -1,14 +1,8 @@
 #include "HBCommon.h"
 #import "HBGameCenter.h"
+#import "IAPHelper.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-
-//const char* getLocalizationString(const char* str)
-//{
-//	NSString* strName = [NSString stringWithFormat:@"%s", str];
-//	strName = NSLocalizedString(strName, nil);
-//	return [strName cStringUsingEncoding:NSUTF8StringEncoding];
-//}
 
 void gotoReview()
 {
@@ -53,9 +47,113 @@ void HBScore::reportScore(const char* boardName, int score)
     [[HBGameCenter shared] reportScoreTo:[NSString stringWithFormat:@"%s", boardName] withScore:score];
 }
 
+//////////////////////////////////////////////////////////
+// HBPurchase
+//////////////////////////////////////////////////////////
+
+HBPurchase::HBPurchase()
+: mInitialized(false)
+, mTarget(NULL)
+, isPurchasing(false)
+, mSuccessCall(NULL)
+, mFailedCall(NULL)
+{
+    
+}
+
+void HBPurchase::init(const vector<string>& itemList)
+{
+    mItemList = itemList;
+    NSMutableSet* p = [[NSMutableSet alloc] init];
+    
+    vector<string>::const_iterator itr;
+    for (itr = itemList.begin(); itr != itemList.end(); ++itr)
+        [p addObject:[NSString stringWithFormat:@"%s", (*itr).c_str()]];
+
+    [[IAPHelper shared] initWithProductIdentifiers:p];
+    [p release];
+    mInitialized = true;
+}
+
+string HBPurchase::getItemCost(int index)
+{
+    CCAssert(mInitialized, "HBPurchase must be initialize first.");
+    if (index >= mItemList.size())
+    {
+        CCLog("%s item index[%d] is out of bounds.", __FUNCTION__, index);
+        return "";
+    }
+
+    return getItemCost(mItemList[index].c_str());
+}
+
+string HBPurchase::getItemCost(const char* itemName)
+{
+    CCAssert(mInitialized, "HBPurchase must be initialize first.");
+    NSString* cost = [[IAPHelper shared] getItemCost:[NSString stringWithFormat:@"%s", itemName]];
+    if (cost)
+    {
+        string str = [cost cStringUsingEncoding:NSUTF8StringEncoding];
+        return str;
+    }
+    
+    return "";
+}
+
+void HBPurchase::purchaseItem(int index, CCObject* target, SEL_CallFuncO successCall, SEL_CallFuncO failedCall)
+{
+    CCAssert(mInitialized, "HBPurchase must be initialize first.");
+    if (index >= mItemList.size())
+    {
+        CCLog("%s item index[%d] is out of bounds.", __FUNCTION__, index);
+        return;
+    }
+    
+    purchaseItem(mItemList[index].c_str(), target, successCall, failedCall);
+}
+
+void HBPurchase::purchaseItem(const char* itemName, CCObject* target, SEL_CallFuncO successCall, SEL_CallFuncO failedCall)
+{
+    CCAssert(mInitialized, "HBPurchase must be initialize first.");
+    if (find(mItemList.begin(), mItemList.end(), itemName) == mItemList.end())
+    {
+        CCLog("%s item [%s] is out of bounds.", __FUNCTION__, itemName);
+        return;
+    }
+    
+    mTarget = target;
+    mSuccessCall = successCall;
+    mFailedCall = failedCall;
+
+    [[IAPHelper shared] buyProductIdentifier:[NSString stringWithFormat:@"%s", itemName]];
+}
+
+void HBPurchase::purchaseSuccess(const char* itemName)
+{
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Success" message:@"Purchase Success" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"Close", nil];
+    [alert show];
+    [alert release];
+    
+    if (mTarget && mSuccessCall)
+        (mTarget->*mSuccessCall)(CCString::create(itemName));
+}
+
+void HBPurchase::purchaseFailed(int errorCode, const char* failedReason)
+{
+    if (errorCode != SKErrorPaymentCancelled)
+    {
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error!" message:[NSString stringWithFormat:@"%s", failedReason] delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+		[alert show];
+        [alert release];
+	}
+
+    if (mTarget && mFailedCall)
+        (mTarget->*mFailedCall)(CCString::create(failedReason));
+}
+
 
 //////////////////////////////////////////////////////////
-// HBScore
+// HBUmeng
 //////////////////////////////////////////////////////////
 
 #import "MobClick.h"
