@@ -140,12 +140,12 @@ void HBPurchase::purchaseSuccess(const char* itemName)
 
 void HBPurchase::purchaseFailed(int errorCode, const char* failedReason)
 {
-    if (errorCode != SKErrorPaymentCancelled)
-    {
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error!" message:[NSString stringWithFormat:@"%s", failedReason] delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
-		[alert show];
-        [alert release];
-	}
+//	if (errorCode != SKErrorPaymentCancelled)
+//    {
+//		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error!" message:[NSString stringWithFormat:@"%s", failedReason] delegate:nil cancelButtonTitle:nil otherButtonTitles:@"Close", nil];
+//		[alert show];
+//        [alert release];
+//	}
 
     if (mTarget && mFailedCall)
         (mTarget->*mFailedCall)(CCString::create(failedReason));

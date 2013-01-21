@@ -2,7 +2,7 @@
 
 char HBDeviceLanguage[50] = "";
 
-const char* HBCommaPrint(int n)
+string HBCommaPrint(int n)
 {
 	static int comma = ',';
 	static char retbuf[30];

@@ -126,12 +126,15 @@ static IAPHelper* _sharedIAPHelper;
 
 -(void)purchaseFailed:(NSError*)error
 {
-    NSLog(@"purchaseFailed:");
-    NSLog(@"   localizedDescription [%@]", error.localizedDescription);
-    NSLog(@"   localizedFailureReason [%@]", error.localizedFailureReason);
-    NSLog(@"   localizedRecoveryOptions [%@]", error.localizedRecoveryOptions);
-    NSLog(@"   localizedRecoverySuggestion [%@]", error.localizedRecoverySuggestion);
-    HBPurchase::shared()->purchaseFailed(error.code, [error.localizedFailureReason cStringUsingEncoding:NSASCIIStringEncoding]);
+//    NSLog(@"purchaseFailed:");
+//    NSLog(@"   localizedDescription [%@]", error.localizedDescription);
+//    NSLog(@"   localizedFailureReason [%@]", error.localizedFailureReason);
+//    NSLog(@"   localizedRecoveryOptions [%@]", error.localizedRecoveryOptions);
+//    NSLog(@"   localizedRecoverySuggestion [%@]", error.localizedRecoverySuggestion);
+    if (error.localizedDescription)
+        HBPurchase::shared()->purchaseFailed(error.code, [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding]);
+    else
+        HBPurchase::shared()->purchaseFailed(error.code, "Purchase Failed");
 }
 
 - (void)failedTransaction:(SKPaymentTransaction *)transaction

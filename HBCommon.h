@@ -18,7 +18,7 @@ using namespace CocosDenshion;
 
 #define fcs(format,...) CCString::createWithFormat(format,## __VA_ARGS__)->getCString()
 
-const char* HBCommaPrint(int n);
+string HBCommaPrint(int n);
 
 const CCPoint gAnchorCenter = ccp(0.5, 0.5);
 const CCPoint gAnchorLeft = ccp(0, 0.5);
